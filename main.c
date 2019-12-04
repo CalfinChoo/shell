@@ -5,18 +5,17 @@
 #include <errno.h>
 #include <sys/wait.h>
 
-void parse_args(char * line, char *** args);
+char *** parse_args(char * line);
 void errcheck();
 
 int main() {
   char input[1024];
-  char args[8][8][16];
   while (1) {
     printf("Command:\n");
     fgets(input, 735, stdin);
     if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
     errcheck();
-    parse_args(input, args);
+    char *** args = parse_args(input);
     int i = 0;
     while (args[i]){
       int f = fork();
@@ -27,17 +26,21 @@ int main() {
       if (f){
         int status = 0;
         wait(&status);
+        free(args[i]);
       }
       else{
         execvp(args[i][0], args[i]);
       }
       errcheck();
+      i++;
     }
+    free(args);
   }
   return 0;
 }
 
-void parse_args(char * line, char args[][][]) {
+char *** parse_args(char * line){
+  char *** args = malloc(8 * 8 * sizeof(char *));
   int i = 0;
   printf("Test1\n");
   while(line != NULL) {
@@ -58,6 +61,7 @@ void parse_args(char * line, char args[][][]) {
     args[i][j] = NULL;
   }
   printf("Test4\n");
+  return args;
 }
 
 void errcheck(){
