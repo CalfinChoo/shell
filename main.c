@@ -37,23 +37,27 @@ int main() {
   return 0;
 }
 
-void parse_args(char * line, char *** args) {
+void parse_args(char * line, char args[][][]) {
   int i = 0;
+  printf("Test1\n");
   while(line != NULL) {
     args[i][0] = strsep(&line, ";");
     i++;
   }
+  printf("Test2\n");
   args[i] = NULL;
   i--;
   for (; i >= 0; i--){
     int j = 0;
     char * l = args[i][0];
+    printf("Test3\n");
     while(l){
       args[i][j] = strsep(&l, " ");
       j++;
     }
     args[i][j] = NULL;
   }
+  printf("Test4\n");
 }
 
 void errcheck(){
