@@ -20,13 +20,13 @@ int main() {
     int i = 0;
     while (args[i]){
       int f = fork();
-      if (strcmp(args[i], exit) == 0){
+      if (strcmp(args[i][0], "exit") == 0){
         printf("exiting\n\n");
         return 0;
       }
       if (f){
         int status = 0;
-        wait(status);
+        wait(&status);
       }
       else{
         execvp(args[i][0], args[i]);
@@ -47,7 +47,7 @@ void parse_args(char * line, char *** args) {
   i--;
   for (; i >= 0; i--){
     int j = 0;
-    char * l = args[i];
+    char * l = args[i][0];
     while(l){
       args[i][j] = strsep(&l, " ");
       j++;
