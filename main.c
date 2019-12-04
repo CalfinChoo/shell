@@ -1,72 +1,70 @@
-#include <unistd.h>
+<unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/wait.h>
 
-char *** parse_args(char * line);
+char ** parse_args(char * line, char * d, int size);
 void errcheck();
 
 int main() {
-  char input[1024];
-  while (1) {
-    printf("Command:\n");
-    fgets(input, 735, stdin);
-    if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
-    errcheck();
-    char *** args = parse_args(input);
-    int i = 0;
-    while (args[i]){
-      int f = fork();
-      if (strcmp(args[i][0], "exit") == 0){
-        printf("exiting\n\n");
-        return 0;
-      }
-      if (f){
-        int status = 0;
-        wait(&status);
-        free(args[i]);
-      }
-      else{
-        execvp(args[i][0], args[i]);
-      }
-      errcheck();
-      i++;
-    }
-    free(args);
-  }
-  return 0;
+ int size = 8;
+ char input[256];
+ char ** commands;
+ //char ** curr[16];
+ while (1) {
+   printf("$ ");
+   fgets(input, sizeof(input) - 1, stdin);
+   errcheck();
+   if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
+   commands = parse_args(input, ";", size);
+   int i = 0;
+   while (commands[i]){
+     if (strcmp(commands[i], "exit") == 0) return 0;
+     char ** args;
+     args = parse_args(commands[i], " ", size);
+     pid_t pid = fork();
+     if (pid > 0) {
+     /* parent process */
+       int status;
+       wait(&status);
+       errcheck();
+       free(args);
+     }
+     else if (pid == 0){
+       /* child process. */
+       execvp(args[0], args);
+       if (errno) printf("%s: command not found\n", args[0]);
+       return 0;
+     }
+     else
+     {
+       /* error */
+       exit(EXIT_FAILURE);
+     }
+     errcheck();
+     i++;
+   }
+   free(commands);
+ }
+ return 0;
 }
 
-char *** parse_args(char * line){
-  char *** args = malloc(8 * 8 * sizeof(char *));
-  int i = 0;
-  printf("Test1\n");
-  while(line != NULL) {
-    args[i][0] = strsep(&line, ";");
-    i++;
-  }
-  printf("Test2\n");
-  args[i] = NULL;
-  i--;
-  for (; i >= 0; i--){
-    int j = 0;
-    char * l = args[i][0];
-    printf("Test3\n");
-    while(l){
-      args[i][j] = strsep(&l, " ");
-      j++;
-    }
-    args[i][j] = NULL;
-  }
-  printf("Test4\n");
-  return args;
+char ** parse_args(char * line, char * d, int size) { // up to size - 1 commands/args
+ char ** arr = malloc(size * sizeof(char *));
+ int i = 0;
+ while(line != NULL && i < size - 1) {
+   arr[i] = strsep(&line, d);
+   i++;
+ }
+ arr[i] = NULL;
+ return arr;
 }
 
 void errcheck(){
-  if (errno) {
-    printf("Error: %d - %s\n", errno, strerror(errno));
-    errno = 0;
-  }
+ if (errno) {
+   printf("Error: %d - %s\n", errno, strerror(errno));
+   errno = 0;
+ }
 }
