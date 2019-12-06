@@ -71,9 +71,8 @@ char ** parse_args(char * line, char * d, int size) { // up to size - 1 commands
  int i = 0;
  while(line != NULL && i < size - 1) {
    char * s = strsep(&line, d);
-   printf("test%stest\n", s);
-   if (strcmp(d, " ")){
-     if(strlen(s) != 0) {
+   if (strcmp(d, " ") == 0){
+     if(s[0] != '\0') {
        arr[i] = s;
        i++;
      }
