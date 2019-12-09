@@ -1,0 +1,6 @@
+main.c
+main.o
+makefile
+README.md
+test
+test.txt
