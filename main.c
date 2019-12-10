@@ -26,7 +26,9 @@ int main() {
    while (commands[i]){
      if (strcmp(commands[i], "exit") == 0) return 0; // exit
      char ** args;
-     args = parse_args(commands[i], " ", size);
+     char *p;
+     strcpy(p, commands[i]);
+     args = parse_args(p, " ", size);
      if (strcmp(args[0], "cd") == 0){ // cd
        if (args[2] != NULL) printf("cd: too many arguments\n");
        else if (!args[1]){
@@ -52,20 +54,31 @@ int main() {
        else if (pid == 0){
          /* child process. */
          int j = 0; // check for redirection
-         int redirect = 0;
-         while (args[j]){
-           if (strcmp(args[j], ">") == 0){
-             j++;
-             if (!args[j]){
-               printf("error\n");
-               break;
+         int redirected = 0;
+         char ** rarr;
+         rarr = parse_args(commands[i], ">", size);
+         if (rarr[1]){
+           redirected = 1;
+           int j = 0;
+           while (rarr[j + 1]){
+             char ** left = parse_args(rarr[j], " ", size);
+             char ** right = parse_args(rarr[j + 1], " ", size);
+             int nfd = dup(1);
+             int fd = open(right[0], O_WRONLY, 0644);
+             dup2(fd, 1);
+             if(!fork()){
+               execvp(left[0], left);
              }
-             int fd = open(args[j], O_WRONLY, 0644);
-             
+             else{
+               int status;
+               wait(&status);
+               dup2(nfd, 1);
+             }
              close(fd);
+             j++;
            }
          }
-         if (!redirect) execvp(args[0], args);
+         if (!redirected) execvp(args[0], args);
          if (errno) printf("%s: command not found\n", args[0]);
          return 0;
        }
