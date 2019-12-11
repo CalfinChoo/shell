@@ -63,16 +63,30 @@ int main() {
            while (rarr[j + 1]){
              char ** left = parse_args(rarr[j], " ", size);
              char ** right = parse_args(rarr[j + 1], " ", size);
-             int nfd = dup(1);
              int fd = open(right[0], O_WRONLY, 0644);
-             dup2(fd, 1);
-             if(!fork()){
-               execvp(left[0], left);
+             if (j > 0){
+               int fd0 = open(left[0], O_RDONLY);
+               int bsize = 1024;
+               char buffer[bsize];
+               read(fd, buffer, bsize);
+               errcheck();
+               write(fd, buffer, bsize);
+               errcheck();
+               close(fd0);
              }
              else{
-               int status;
-               wait(&status);
-               dup2(nfd, 1);
+               int nfd = dup(1);
+               dup2(fd, 1);
+               if(!fork()){
+                 execvp(left[0], left);
+                 if (errno) printf("%s: command not found\n", args[0]);
+                 return 0;
+               }
+               else{
+                 int status;
+                 wait(&status);
+                 dup2(nfd, 1);
+               }
              }
              close(fd);
              j++;
