@@ -157,6 +157,7 @@ int main() {
              j++;
            }
 	 }
+	 free(rarr);
          if (!redirected) execvp(args[0], args);
          if (errno) printf("%s: command not found\n", args[0]);
          return 0;
