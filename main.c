@@ -109,6 +109,53 @@ int main() {
          }
          free(roarr);
          free(riarr);
+         char ** rarr = parse_args(commands[i], "|", size);
+         if (rarr[1]) {
+             redirected = 1;
+           int j = 0;
+           while (rarr[j + 1]) {
+             char ** left = parse_args(rarr[j], " ", size);
+             char ** right = parse_args(rarr[j+1], " ", size);
+             int pd[2];
+             if (pipe(pd) == -1) {
+               printf("Pipe failed.");
+               return 0;
+             }
+             FILE * p = popen(right[0], "w");
+             if (!p) {
+                 printf("ERROR");
+                 return 0;
+             }
+             int fd = fileno(p);
+             int test = open("test.txt", O_WRONLY);
+             if (j > 0 && rarr[j + 1]){
+               int fd0 = open(left[0], O_RDONLY);
+               char buffer[2048];
+               read(fd0, buffer, 2048);
+               errcheck();
+               write(fd, buffer, strlen(buffer));
+               errcheck();
+               close(fd0);
+             }
+             else{
+               int nfd = dup(1);
+               dup2(fd, 1);
+               if(!fork()){
+                 execvp(left[0], left);
+                 if (errno) printf("%s: command not found\n", args[0]);
+                 return 0;
+               }
+               else{
+                 int status;
+                 wait(&status);
+                 dup2(nfd, 1);
+               }
+             }
+             pclose(p);
+             free(left);
+             free(right);
+             j++;
+           }
          if (!redirected) execvp(args[0], args);
          if (errno) printf("%s: command not found\n", args[0]);
          return 0;
