@@ -8,6 +8,7 @@
 
 char ** parse_args(char * line, char * d, int size);
 void errcheck();
+char * piper(char ** command, int x, int size);
 
 int main() {
  int size = 8;
@@ -109,43 +110,15 @@ int main() {
          }
          free(roarr);
          free(riarr);
-         char ** rarr = parse_args(commands[i], "|", size);
+         char ** rarr = parse_args(commands[i], "|", size); // cannot mix with > or <
          if (rarr[1]) {
-           redirected = 1;
            int j = 0;
-           while (rarr[j + 1]) {
-             char ** left = parse_args(rarr[j], " ", size);
-             char ** right = parse_args(rarr[j+1], " ", size);
-             int pd[2];
-             if (pipe(pd) == -1) {
-               printf("Pipe failed.");
-               return 0;
-             }
-             FILE * p = popen(right[0], "w");
-             if (!p) {
-               printf("ERROR");
-               return 0;
-             }
-             int fd = fileno(p);
-             int nfd = dup(1);
-             dup2(fd, 1);
-             if(!fork()){
-               execvp(left[0], left);
-               if (errno) printf("%s: command not found\n", args[0]);
-               return 0;
-             }
-             else{
-               int status;
-               wait(&status);
-               dup2(nfd, 1);
-             }
-             pclose(p);
-             free(left);
-             free(right);
-             j++;
-           }
+           while (rarr[j]) j++;
+           redirected = 1;
+           char * output = piper(rarr, j - 1, size);
+           printf("%s\n", output);
+           free(output);
          }
-         free(rarr);
          if (!redirected) execvp(args[0], args);
          if (errno) printf("%s: command not found\n", args[0]);
          return 0;
@@ -189,4 +162,36 @@ void errcheck(){
    printf("Error: %d - %s\n", errno, strerror(errno));
    errno = 0;
  }
+}
+
+char * piper(char ** command, int x, int size){
+  printf("%d\n", x);
+  FILE * p;
+  char* buff = malloc(2048);
+  p = popen(command[x], "r");
+  if (x == 0) {
+    char c = fgetc(p);
+    int i = 0;
+    while (c != EOF){
+      buff[i] = c;
+      i++;
+      c = fgetc(p);
+    }
+  }
+  else {
+    char * s = piper(command, x - 1, size);
+    strcpy(buff, s);
+    free(s);
+    write(fileno(p), buff, strlen(buff));
+    char c = fgetc(p);
+    int i = 0;
+    while (c != EOF){
+      buff[i] = c;
+      i++;
+      c = fgetc(p);
+    }
+  }
+  pclose(p);
+  printf("%d end: %s\n", x, buff);
+  return buff;
 }

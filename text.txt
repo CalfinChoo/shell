@@ -1,0 +1,8 @@
+main.c
+main.o
+makefile
+README.md
+test
+test2.txt
+test.txt
+text.txt
