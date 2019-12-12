@@ -59,7 +59,7 @@ int main() {
          if (roarr[1] || riarr[1]){
            redirected = 1;
            int j = 0;
-           while (roarr[j + 1] || riarr[j + 1]){ // cannot chain <, but can chain >
+           while (roarr[j + 1] || riarr[j + 1]){ // cannot chain <, but can chain >. Cannot combine < and >
              char ** left;
              char ** right;
              int fd;
@@ -76,7 +76,7 @@ int main() {
                fd = open(right[0], O_RDONLY);
                std = 0;
              }
-             if (j > 0 && riarr[j + 1]){
+             if (j > 0 && roarr[j + 1]){
                int fd0 = open(left[0], O_RDONLY);
                int bsize = 1024;
                char buffer[bsize];
