@@ -80,11 +80,10 @@ int main() {
              }
              if (j > 0 && roarr[j + 1]){
                int fd0 = open(left[0], O_RDONLY);
-               int bsize = 1024;
-               char buffer[bsize];
-               read(fd0, buffer, bsize);
+               char buffer[1024];
+               read(fd0, buffer, sizeof(buffer));
                errcheck();
-               write(fd, buffer, bsize);
+               write(fd, buffer, sizeof(buffer));
                errcheck();
                close(fd0);
              }
