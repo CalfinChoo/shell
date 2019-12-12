@@ -54,28 +54,41 @@ int main() {
          /* child process. */
          int j = 0; // check for redirection
          int redirected = 0;
-         char ** rarr;
-         rarr = parse_args(commands[i], ">", size);
-         if (rarr[1]){
+         char ** roarr = parse_args(commands[i], ">", size);
+         char ** riarr = parse_args(commands[i], "<", size);
+         if (roarr[1] || riarr[1]){
            redirected = 1;
            int j = 0;
-           while (rarr[j + 1]){
-             char ** left = parse_args(rarr[j], " ", size);
-             char ** right = parse_args(rarr[j + 1], " ", size);
-             int fd = open(right[0], O_WRONLY, 0644);
-             if (j > 0){
+           while (roarr[j + 1] || riarr[j + 1]){ // cannot chain <, but can chain >
+             char ** left;
+             char ** right;
+             int fd;
+             int std;
+             if (roarr[j + 1]){
+               left = parse_args(roarr[j], " ", size);
+               right = parse_args(roarr[j + 1], " ", size);
+               fd = open(right[0], O_WRONLY | O_CREAT, 0644);
+               std = 1;
+             }
+             else {
+               left = parse_args(riarr[j], " ", size);
+               right = parse_args(riarr[j + 1], " ", size);
+               fd = open(right[0], O_RDONLY);
+               std = 0;
+             }
+             if (j > 0 && riarr[j + 1]){
                int fd0 = open(left[0], O_RDONLY);
                int bsize = 1024;
                char buffer[bsize];
-               read(fd, buffer, bsize);
+               read(fd0, buffer, bsize);
                errcheck();
                write(fd, buffer, bsize);
                errcheck();
                close(fd0);
              }
              else{
-               int nfd = dup(1);
-               dup2(fd, 1);
+               int nfd = dup(std);
+               dup2(fd, std);
                if(!fork()){
                  execvp(left[0], left);
                  if (errno) printf("%s: command not found\n", args[0]);
@@ -84,7 +97,7 @@ int main() {
                else{
                  int status;
                  wait(&status);
-                 dup2(nfd, 1);
+                 dup2(nfd, std);
                }
              }
              close(fd);
