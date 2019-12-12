@@ -89,6 +89,8 @@ int main() {
                }
              }
              close(fd);
+             free(left);
+             free(right);
              j++;
            }
          }
