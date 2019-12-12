@@ -13,7 +13,6 @@ int main() {
  int size = 8;
  char input[256];
  char ** commands;
- //char ** curr[16];
  while (1) {
    char dir[1024];
    getcwd(dir, sizeof(dir));
@@ -26,7 +25,7 @@ int main() {
    while (commands[i]){
      if (strcmp(commands[i], "exit") == 0) return 0; // exit
      char ** args;
-     char *p;
+     char p[256];
      strcpy(p, commands[i]);
      args = parse_args(p, " ", size);
      if (strcmp(args[0], "cd") == 0){ // cd
