@@ -65,8 +65,10 @@ int main() {
              int fd;
              int std;
              if (roarr[j + 1]){
+               char p[256];
+               strcpy(p, roarr[j + 1]);
                left = parse_args(roarr[j], " ", size);
-               right = parse_args(roarr[j + 1], " ", size);
+               right = parse_args(p, " ", size);
                fd = open(right[0], O_WRONLY | O_CREAT, 0644);
                std = 1;
              }
@@ -106,6 +108,8 @@ int main() {
              j++;
            }
          }
+         free(roarr);
+         free(riarr);
          if (!redirected) execvp(args[0], args);
          if (errno) printf("%s: command not found\n", args[0]);
          return 0;
