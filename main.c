@@ -69,7 +69,7 @@ int main() {
                strcpy(p, roarr[j + 1]);
                left = parse_args(roarr[j], " ", size);
                right = parse_args(p, " ", size);
-               fd = open(right[0], O_WRONLY | O_CREAT, 0644);
+               fd = open(right[0], O_WRONLY | O_CREAT | O_TRUNC, 0644);
                std = 1;
              }
              else {
