@@ -14,9 +14,10 @@ int main() {
  char input[256];
  char ** commands;
  while (1) {
-   char dir[1024];
+   char * dir;
    getcwd(dir, sizeof(dir));
    printf("%s$ ", dir);
+   free(dir);
    fgets(input, sizeof(input) - 1, stdin);
    errcheck();
    if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
