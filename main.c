@@ -8,7 +8,7 @@
 
 char ** parse_args(char * line, char * d, int size);
 void errcheck();
-char * piper(char ** command, int x, int size);
+FILE * piper(char ** command, int x, int size);
 
 int main() {
  int size = 8;
@@ -110,14 +110,24 @@ int main() {
          }
          free(roarr);
          free(riarr);
-         char ** rarr = parse_args(commands[i], "|", size); // cannot mix with > or <
-         if (rarr[1]) {
-           int j = 0;
-           while (rarr[j]) j++;
+         char ** rarr = parse_args(commands[i], "|", size); // cannot mix with > or <. Cannot chain
+         if (rarr[2]) {
            redirected = 1;
-           char * output = piper(rarr, j - 1, size);
-           printf("%s\n", output);
-           free(output);
+           printf("Unsupported\n");
+         }
+         else if (rarr[1]) {
+           redirected = 1;
+           FILE * p = popen(rarr[0], "r");
+           FILE * q = popen(rarr[1], "w");
+           char buff[2048];
+           char c = fgetc(p);
+           int x = 0;
+           while (c != EOF){
+             buff[x] = c;
+             x++;
+             c = fgetc(p);
+           }
+           fwrite(buff, 1, strlen(buff), q);
          }
          if (!redirected) execvp(args[0], args);
          if (errno) printf("%s: command not found\n", args[0]);
@@ -162,36 +172,4 @@ void errcheck(){
    printf("Error: %d - %s\n", errno, strerror(errno));
    errno = 0;
  }
-}
-
-char * piper(char ** command, int x, int size){
-  printf("%d\n", x);
-  FILE * p;
-  char* buff = malloc(2048);
-  p = popen(command[x], "r");
-  if (x == 0) {
-    char c = fgetc(p);
-    int i = 0;
-    while (c != EOF){
-      buff[i] = c;
-      i++;
-      c = fgetc(p);
-    }
-  }
-  else {
-    char * s = piper(command, x - 1, size);
-    strcpy(buff, s);
-    free(s);
-    write(fileno(p), buff, strlen(buff));
-    char c = fgetc(p);
-    int i = 0;
-    while (c != EOF){
-      buff[i] = c;
-      i++;
-      c = fgetc(p);
-    }
-  }
-  pclose(p);
-  printf("%d end: %s\n", x, buff);
-  return buff;
 }
