@@ -8,7 +8,6 @@
 
 char ** parse_args(char * line, char * d, int size);
 void errcheck();
-FILE * piper(char ** command, int x, int size);
 
 int main() {
  int size = 8;
