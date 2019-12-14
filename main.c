@@ -20,7 +20,6 @@ int main() {
     printf("%s$ ", dir);
     fgets(input, sizeof(input) - 1, stdin);
     errcheck();
-    printf("%s%d\n", input, strlen(input));
     if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
     commands = parse_args(input, ";", size);
     int i = 0;
