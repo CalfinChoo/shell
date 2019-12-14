@@ -17,7 +17,7 @@ int main() {
  while (1) {
    char dir[256];
    getcwd(dir, sizeof(dir));
-   printf("%s$\n", dir); // \n added to ensure dir is printed
+   printf("%s$", dir);
    fgets(input, sizeof(input) - 1, stdin);
    errcheck();
    if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
@@ -60,6 +60,8 @@ int main() {
            redirected = 1;
            char ** left = parse_args(riarr[0], " ", size);
            char ** right = parse_args(riarr[1], ">", size);
+           char ** right1 = parse_args(right[0], " ", size);
+           char ** right2;
            int fd = open(right[0], O_RDONLY);
            int fd2;
            int nfd = dup(0);
@@ -67,7 +69,8 @@ int main() {
            dup2(fd, 0);
            if (right[1]){
              redirected = 2;
-             fd2 = open(right[1], O_WRONLY | O_TRUNC | O_CREAT, 0644);
+             right2 = parse_args(right[1], " ", size);
+             fd2 = open(right2[0], O_WRONLY | O_TRUNC | O_CREAT, 0644);
              nfd2 = dup(1);
              dup2(fd2, 1);
            }
@@ -81,10 +84,12 @@ int main() {
              wait(&status);
              dup2(nfd, 0);
              if (right[1]){
+               free(right2);
                dup2(nfd2, 1);
                close(fd2);
              }
            }
+           free(right1);
            close(fd);
            free(left);
            if (redirected == 2) redirect_out(right, 1, size);
