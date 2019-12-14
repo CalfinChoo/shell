@@ -92,9 +92,9 @@ int main() {
            return 0;
          }
          free(riarr);
-         if (!redirected) {
+         char ** roarr = parse_args(commands[i], ">", size);
+         if (roarr[1]) {
            redirected = 1;
-           char ** roarr = parse_args(commands[i], ">", size);
            redirect_out(roarr, 0, size);
            free(roarr);
            return 0;
