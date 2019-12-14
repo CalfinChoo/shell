@@ -21,7 +21,7 @@ int main() {
    fgets(input, sizeof(input) - 1, stdin);
    errcheck(22);
    int empty = 0;
-   if (strlen(input) == 0) empty = 1;
+   if (input[0] == '\0') empty = 1;
    else if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
    commands = parse_args(input, ";", size);
    int i = 0;
@@ -139,8 +139,11 @@ int main() {
      i++;
    }
    free(commands);
+   fseek(stdout, 0, SEEK_SET);
    int ch = getc(stdout);
+   fseek(stdout, 0, SEEK_SET);
    if (ch != EOF) printf("\n");
+   errcheck(146);
  }
  return 0;
 }
@@ -184,9 +187,9 @@ void redirect_out(char ** arr, int initial, int size){ // handles > and chain
       int fd0 = open(left[0], O_RDONLY);
       char buffer[2048];
       read(fd0, buffer, 2048);
-      errcheck(187);
+      errcheck(190);
       write(fd, buffer, strlen(buffer));
-      errcheck(189);
+      errcheck(192);
       close(fd0);
     }
     else{
