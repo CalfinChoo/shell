@@ -167,7 +167,7 @@ char ** parse_args(char * line, char * d, int size) { // up to size - 1 commands
 
 void errcheck(int line){
  if (errno) {
-   printf("%d Error: %d - %s\n", line errno, strerror(errno));
+   printf("%d Error: %d - %s\n", line, errno, strerror(errno));
    errno = 0;
  }
 }
