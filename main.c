@@ -8,7 +8,7 @@
 
 char ** parse_args(char * line, char * d, int size);
 void errcheck();
-void redirect_out(char **, size);
+void redirect_out(char **, int size);
 
 int main() {
  int size = 8;
@@ -87,8 +87,8 @@ int main() {
          if (!redirected) {
            char ** roarr = parse_args(commands[i], ">", size);
            redirect_out(roarr, size);
+           free(roarr);
          }
-         free(roarr);
          char ** rarr = parse_args(commands[i], "|", size); // cannot mix with > or <. Cannot chain
          if (rarr[2]) {
            redirected = 1;
@@ -153,7 +153,7 @@ void errcheck(){
  }
 }
 
-void redirect_out(char ** arr, size){ // handles > and chain
+void redirect_out(char ** arr, int size){ // handles > and chain
   int x = 0;
   while (arr[x + 1]){
     char p[256];
