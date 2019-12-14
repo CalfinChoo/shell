@@ -15,7 +15,7 @@ int main() {
   char input[1024];
   char ** commands;
   while (1) {
-    if feof(stdin){
+    if (feof(stdin)){
       char dir[256];
       getcwd(dir, sizeof(dir));
       printf("%s$ ", dir);
