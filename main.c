@@ -61,10 +61,19 @@ int main() {
             char ** left = parse_args(riarr[0], " ", size);
             char ** right = parse_args(riarr[1], ">", size);
             char ** right1 = parse_args(right[0], " ", size);
+            char ** right2;
             int fd = open(right1[0], O_RDONLY);
+            int fd2;
             int nfd = dup(0);
+            int nfd2;
             dup2(fd, 0);
-            if (right[1]) redirected = 2;
+            if (right[1]){
+              redirected = 2;
+              right2 = parse_args(right[1], " ", size);
+              fd2 = open(right2[0], O_WRONLY | O_TRUNC | O_CREAT, 0644);
+              nfd2 = dup(1);
+              dup2(fd2, 1);
+            }
             if(!fork()){
               execvp(left[0], left);
               if (errno) printf("%s: command not found\n", left[0]);
@@ -74,6 +83,11 @@ int main() {
               int status;
               wait(&status);
               dup2(nfd, 0);
+              if (right[1]){
+                free(right2);
+                dup2(nfd2, 1);
+                close(fd2);
+              }
             }
             free(right1);
             close(fd);
