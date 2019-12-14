@@ -20,7 +20,8 @@ int main() {
     printf("%s$ ", dir);
     fgets(input, sizeof(input) - 1, stdin);
     errcheck();
-    if (input[0] != '\0' && input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
+    if (input[0] == '\0');
+    else if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
     commands = parse_args(input, ";", size);
     int i = 0;
     while (commands[i]){
