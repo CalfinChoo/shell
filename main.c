@@ -20,8 +20,7 @@ int main() {
     printf("%s$ ", dir);
     fgets(input, sizeof(input) - 1, stdin);
     errcheck();
-    if (input[0] == '\0');
-    else if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
+    if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
     commands = parse_args(input, ";", size);
     int i = 0;
     while (commands[i]){
@@ -144,8 +143,11 @@ int main() {
 }
 
 char ** parse_args(char * line, char * d, int size) { // up to size - 1 commands/args
-  if (line[0] == '\0') return NULL;
   char ** arr = malloc(size * sizeof(char *));
+  if (line[0] == '\0'){
+    arr[0] = NULL;
+    return arr;
+  }
   int i = 0;
   while(line != NULL && i < size - 1) {
     char * s = strsep(&line, d);
