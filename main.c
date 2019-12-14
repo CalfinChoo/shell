@@ -7,7 +7,7 @@
 #include <fcntl.h>
 
 char ** parse_args(char * line, char * d, int size);
-void errcheck();
+void errcheck(int line);
 void redirect_out(char **, int initial, int size);
 
 int main() {
@@ -19,11 +19,13 @@ int main() {
    getcwd(dir, sizeof(dir));
    printf("%s$ ", dir);
    fgets(input, sizeof(input) - 1, stdin);
-   errcheck();
-   if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
+   errcheck(22);
+   int empty = 0;
+   if (strlen(input) == 0) empty = 1;
+   else if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
    commands = parse_args(input, ";", size);
    int i = 0;
-   while (commands[i]){
+   while (!empty && commands[i]){
      if (strcmp(commands[i], "exit") == 0) return 0; // exit
      char ** args;
      char p[256];
@@ -48,7 +50,7 @@ int main() {
        /* parent process */
          int status;
          wait(&status);
-         errcheck();
+         errcheck(53);
          free(args);
        }
        else if (pid == 0){
@@ -133,12 +135,12 @@ int main() {
          exit(EXIT_FAILURE);
        }
      }
-     errcheck();
+     errcheck(138);
      i++;
    }
    free(commands);
    int ch = getc(stdout);
-   if (ch == EOF) printf("\n");
+   if (ch != EOF) printf("\n");
  }
  return 0;
 }
@@ -163,9 +165,9 @@ char ** parse_args(char * line, char * d, int size) { // up to size - 1 commands
  return arr;
 }
 
-void errcheck(){
+void errcheck(int line){
  if (errno) {
-   printf("Error: %d - %s\n", errno, strerror(errno));
+   printf("%d Error: %d - %s\n", line errno, strerror(errno));
    errno = 0;
  }
 }
@@ -182,9 +184,9 @@ void redirect_out(char ** arr, int initial, int size){ // handles > and chain
       int fd0 = open(left[0], O_RDONLY);
       char buffer[2048];
       read(fd0, buffer, 2048);
-      errcheck();
+      errcheck(187);
       write(fd, buffer, strlen(buffer));
-      errcheck();
+      errcheck(189);
       close(fd0);
     }
     else{
