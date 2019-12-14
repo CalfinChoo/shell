@@ -8,17 +8,16 @@
 
 char ** parse_args(char * line, char * d, int size);
 void errcheck();
-void redirect_out(char **, int size);
+void redirect_out(char **, int initial, int size);
 
 int main() {
  int size = 8;
  char input[256];
  char ** commands;
  while (1) {
-   char * dir;
+   char dir[256];
    getcwd(dir, sizeof(dir));
    printf("%s$ ", dir);
-   free(dir);
    fgets(input, sizeof(input) - 1, stdin);
    errcheck();
    if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
@@ -61,13 +60,17 @@ int main() {
            redirected = 1;
            char ** left = parse_args(riarr[0], " ", size);
            char ** right = parse_args(riarr[1], ">", size);
-           char ** right2 = parse_args(right[0], " ", size);
+           int fd = open(right[0], O_RDONLY);
+           int fd2;
+           int nfd = dup(0);
+           int nfd2;
+           dup2(fd, 0);
            if (right[1]){
              redirected = 2;
+             fd2 = open(right[1], O_WRONLY | O_TRUNC | O_CREAT, 0644);
+             nfd2 = dup(1);
+             dup2(fd2, 1);
            }
-           int fd = open(right2[0], O_RDONLY);
-           int nfd = dup(0);
-           dup2(fd, 0);
            if(!fork()){
              execvp(left[0], left);
              if (errno) printf("%s: command not found\n", left[0]);
@@ -77,17 +80,24 @@ int main() {
              int status;
              wait(&status);
              dup2(nfd, 0);
+             if (right[1]){
+               dup2(nfd2, 1);
+               close(fd2);
+             }
            }
            close(fd);
            free(left);
-           if (redirected == 2) redirect_out(right, size);
+           if (redirected == 2) redirect_out(right, 1, size);
            free(right);
+           return 0;
          }
          free(riarr);
          if (!redirected) {
+           redirected = 1;
            char ** roarr = parse_args(commands[i], ">", size);
-           redirect_out(roarr, size);
+           redirect_out(roarr, 0, size);
            free(roarr);
+           return 0;
          }
          char ** rarr = parse_args(commands[i], "|", size); // cannot mix with > or <. Cannot chain
          if (rarr[2]) {
@@ -153,8 +163,8 @@ void errcheck(){
  }
 }
 
-void redirect_out(char ** arr, int size){ // handles > and chain
-  int x = 0;
+void redirect_out(char ** arr, int initial, int size){ // handles > and chain
+  int x = initial;
   while (arr[x + 1]){
     char p[256];
     strcpy(p, arr[x + 1]);
