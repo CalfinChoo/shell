@@ -8,6 +8,7 @@
 
 char ** parse_args(char * line, char * d, int size);
 void errcheck();
+void redirect_out(char **, size);
 
 int main() {
  int size = 8;
@@ -55,61 +56,39 @@ int main() {
          /* child process. */
          int j = 0; // check for redirection
          int redirected = 0;
-         char ** roarr = parse_args(commands[i], ">", size);
          char ** riarr = parse_args(commands[i], "<", size);
-         if (roarr[1] || riarr[1]){
+         if (riarr[1]){
            redirected = 1;
-           int j = 0;
-           while (roarr[j + 1] || riarr[j + 1]){ // cannot chain <, but can chain >. Cannot combine < and >
-             char ** left;
-             char ** right;
-             int fd;
-             int std;
-             if (roarr[j + 1]){
-               char p[256];
-               strcpy(p, roarr[j + 1]);
-               left = parse_args(roarr[j], " ", size);
-               right = parse_args(p, " ", size);
-               fd = open(right[0], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-               std = 1;
-             }
-             else {
-               left = parse_args(riarr[j], " ", size);
-               right = parse_args(riarr[j + 1], " ", size);
-               fd = open(right[0], O_RDONLY);
-               std = 0;
-             }
-             if (j > 0 && roarr[j + 1]){
-               int fd0 = open(left[0], O_RDONLY);
-               char buffer[2048];
-               read(fd0, buffer, 2048);
-               errcheck();
-               write(fd, buffer, strlen(buffer));
-               errcheck();
-               close(fd0);
-             }
-             else{
-               int nfd = dup(std);
-               dup2(fd, std);
-               if(!fork()){
-                 execvp(left[0], left);
-                 if (errno) printf("%s: command not found\n", args[0]);
-                 return 0;
-               }
-               else{
-                 int status;
-                 wait(&status);
-                 dup2(nfd, std);
-               }
-             }
-             close(fd);
-             free(left);
-             free(right);
-             j++;
+           char ** left = parse_args(riarr[0], " ", size);
+           char ** right = parse_args(riarr[1], ">", size);
+           char ** right2 = parse_args(right[0], " ", size);
+           if (right[1]){
+             redirected = 2;
            }
+           int fd = open(right2[0], O_RDONLY);
+           int nfd = dup(0);
+           dup2(fd, 0);
+           if(!fork()){
+             execvp(left[0], left);
+             if (errno) printf("%s: command not found\n", left[0]);
+             return 0;
+           }
+           else{
+             int status;
+             wait(&status);
+             dup2(nfd, 0);
+           }
+           close(fd);
+           free(left);
+           if (redirected == 2) redirect_out(right, size);
+           free(right);
+         }
+         free(riarr);
+         if (!redirected) {
+           char ** roarr = parse_args(commands[i], ">", size);
+           redirect_out(roarr, size);
          }
          free(roarr);
-         free(riarr);
          char ** rarr = parse_args(commands[i], "|", size); // cannot mix with > or <. Cannot chain
          if (rarr[2]) {
            redirected = 1;
@@ -172,4 +151,42 @@ void errcheck(){
    printf("Error: %d - %s\n", errno, strerror(errno));
    errno = 0;
  }
+}
+
+void redirect_out(char ** arr, size){ // handles > and chain
+  int x = 0;
+  while (arr[x + 1]){
+    char p[256];
+    strcpy(p, arr[x + 1]);
+    char ** left = parse_args(arr[x], " ", size);
+    char ** right = parse_args(p, " ", size);
+    int fd = open(right[0], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (x > 0){
+      int fd0 = open(left[0], O_RDONLY);
+      char buffer[2048];
+      read(fd0, buffer, 2048);
+      errcheck();
+      write(fd, buffer, strlen(buffer));
+      errcheck();
+      close(fd0);
+    }
+    else{
+      int nfd = dup(1);
+      dup2(fd, 1);
+      if(!fork()){
+        execvp(left[0], left);
+        if (errno) printf("%s: command not found\n", left[0]);
+        return 0;
+      }
+      else{
+        int status;
+        wait(&status);
+        dup2(nfd, 1);
+      }
+    }
+    close(fd);
+    free(left);
+    free(right);
+    x++;
+  }
 }
