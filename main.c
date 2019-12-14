@@ -15,11 +15,12 @@ int main() {
   char input[1024];
   char ** commands;
   while (1) {
-    if (!feof(stdin)){
+    if (!fgetc(stdin)){
       char dir[256];
       getcwd(dir, sizeof(dir));
       printf("%s$ ", dir);
     }
+    fseek(stdin, -1, SEEK_CUR);
     fgets(input, sizeof(input) - 1, stdin);
     errcheck();
     if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
@@ -55,8 +56,7 @@ int main() {
         }
         else if (pid == 0){
           /* child process. */
-          int j = 0; // check for redirection
-          int redirected = 0;
+          int redirected = 0;// check for redirection
           char ** riarr = parse_args(commands[i], "<", size);
           if (riarr[1]){
             redirected = 1;
@@ -64,7 +64,7 @@ int main() {
             char ** right = parse_args(riarr[1], ">", size);
             char ** right1 = parse_args(right[0], " ", size);
             char ** right2;
-            int fd = open(right[0], O_RDONLY);
+            int fd = open(right1[0], O_RDONLY);
             int fd2;
             int nfd = dup(0);
             int nfd2;
