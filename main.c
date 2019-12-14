@@ -19,6 +19,7 @@ int main() {
     getcwd(dir, sizeof(dir));
     printf("%s$ ", dir);
     fgets(input, sizeof(input) - 1, stdin);
+    printf("\n");
     errcheck();
     if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
     commands = parse_args(input, ";", size);
