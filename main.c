@@ -69,7 +69,9 @@ int main() {
             dup2(fd, 0);
             if (right[1]){
               redirected = 2;
-              right2 = parse_args(right[1], " ", size);
+              char q[256];
+              strcpy(q, right[1]);
+              right2 = parse_args(q, " ", size);
               fd2 = open(right2[0], O_WRONLY | O_TRUNC | O_CREAT, 0644);
               nfd2 = dup(1);
               dup2(fd2, 1);
@@ -174,14 +176,14 @@ void errcheck(){
 }
 
 void redirect_out(char ** arr, int initial, int size){ // handles > and chain
-  int x = 0;
+  int x = initial;
   while (arr[x + 1]){
     char p[256];
     strcpy(p, arr[x + 1]);
     char ** left = parse_args(arr[x], " ", size);
     char ** right = parse_args(p, " ", size);
     int fd = open(right[0], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (x + initial > 0){
+    if (x > 0){
       int fd0 = open(left[0], O_RDONLY);
       char buffer[2048];
       read(fd0, buffer, 2048);
