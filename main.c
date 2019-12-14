@@ -176,7 +176,7 @@ void redirect_out(char ** arr, int size){ // handles > and chain
       if(!fork()){
         execvp(left[0], left);
         if (errno) printf("%s: command not found\n", left[0]);
-        return 0;
+        exit(EXIT_FAILURE);
       }
       else{
         int status;
