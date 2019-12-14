@@ -20,7 +20,7 @@ int main() {
     printf("%s$ ", dir);
     fgets(input, sizeof(input) - 1, stdin);
     errcheck();
-    if (input[0] == '\0' && input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
+    if (input[0] != '\0' && input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
     commands = parse_args(input, ";", size);
     int i = 0;
     while (commands[i]){
@@ -137,10 +137,6 @@ int main() {
       i++;
     }
     free(commands);
-    errcheck();
-    int ch = getc(stdout);
-    fseek(stdout, 0, SEEK_SET);
-    if (ch != EOF) printf("\n");
     errcheck();
   }
   return 0;
