@@ -15,11 +15,12 @@ int main() {
   char input[1024];
   char ** commands;
   while (1) {
-    char dir[256];
-    getcwd(dir, sizeof(dir));
-    printf("%s$ ", dir);
+    if feof(stdin){
+      char dir[256];
+      getcwd(dir, sizeof(dir));
+      printf("%s$ ", dir);
+    }
     fgets(input, sizeof(input) - 1, stdin);
-    printf("\n");
     errcheck();
     if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
     commands = parse_args(input, ";", size);
