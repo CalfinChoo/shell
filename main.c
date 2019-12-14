@@ -17,7 +17,7 @@ int main() {
  while (1) {
    char dir[256];
    getcwd(dir, sizeof(dir));
-   printf("%s$ ", dir);
+   printf("%s$\n", dir); // \n added to ensure dir is printed
    fgets(input, sizeof(input) - 1, stdin);
    errcheck();
    if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
