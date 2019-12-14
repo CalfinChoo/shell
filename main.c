@@ -12,12 +12,12 @@ void redirect_out(char **, int initial, int size);
 
 int main() {
  int size = 8;
- char input[256];
+ char input[1024];
  char ** commands;
  while (1) {
    char dir[256];
    getcwd(dir, sizeof(dir));
-   printf("%s$", dir);
+   printf("%s$ ", dir);
    fgets(input, sizeof(input) - 1, stdin);
    errcheck();
    if (input[strlen(input) - 1] == '\n') input[strlen(input) - 1] = '\0';
@@ -137,6 +137,8 @@ int main() {
      i++;
    }
    free(commands);
+   in ch = getc(stdout);
+   if (ch == EOF) printf("\n");
  }
  return 0;
 }
