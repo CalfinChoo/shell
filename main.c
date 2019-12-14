@@ -137,7 +137,7 @@ int main() {
      i++;
    }
    free(commands);
-   in ch = getc(stdout);
+   int ch = getc(stdout);
    if (ch == EOF) printf("\n");
  }
  return 0;
