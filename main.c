@@ -10,6 +10,15 @@ char ** parse_args(char * line, char * d, int size);
 void errcheck();
 void redirect_out(char **, int initial, int size);
 
+/*======== int main() ====================
+Inputs: None (at least not at runtime)
+Returns: 0
+
+Runs the shell!
+Prints current working directory
+Prints the command being run (mainly to aid in readability when redirecting stdin to the program)
+Checks for user inputs
+====================*/
 int main() {
   int size = 8;
   char input[1024];
@@ -144,6 +153,17 @@ int main() {
   return 0;
 }
 
+/*======== char * * parse_args() ==========
+Inputs:
+
+char * line
+char * d
+int size
+Returns: Array of strings from the given string parsed by the given delimeter
+
+Parses line by delimiter d and separates it into multiple strings stored in an array that is returned
+Checks for and removes any extraneous spaces in line, if " " was the delimeter.
+====================*/
 char ** parse_args(char * line, char * d, int size) { // up to size - 1 commands/args
   char ** arr = malloc(size * sizeof(char *));
   if (line[0] == '\0'){
@@ -168,6 +188,12 @@ char ** parse_args(char * line, char * d, int size) { // up to size - 1 commands
   return arr;
 }
 
+/*======== void errcheck() ==========
+Inputs: None
+Returns: None
+
+Prints an errno message when called and resets errno.
+====================*/
 void errcheck(){
   if (errno) {
     printf("Error: %d - %s\n", errno, strerror(errno));
@@ -175,6 +201,16 @@ void errcheck(){
   }
 }
 
+/*======== void redirect_out() ==========
+Inputs:
+
+char * * arr
+int initial
+int size
+Returns: None
+
+Function for handling ">" redirect and chaining redirects
+====================*/
 void redirect_out(char ** arr, int initial, int size){ // handles > and chain
   int x = initial;
   while (arr[x + 1]){
