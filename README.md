@@ -17,7 +17,15 @@
 - Pest Control said it should be clean
 ## Files & Function Headers:
 <b>main.c</b> <br>
-Handles all line parsing fucntions
+Handles all line parsing, redirection, chaining, forking, executing - you name it.  
+#### ======== int main() ==========
+<b>Inputs:</b> None (at least not at runtime) <br>
+<b>Returns:</b> 0
+
+- Runs the shell!
+- Prints current working directory
+- Checks for user inputs
+####	====================*/
 #### ======== char ** parse_args() ==========
 <b>Inputs:</b>
 - char * line
