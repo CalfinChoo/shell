@@ -29,7 +29,10 @@ Handles all line parsing, redirection, chaining, forking, executing - you name i
   - Prints the command being run (mainly to aid in readability when redirecting stdin to the program)
   - Checks for user inputs
 
-####	====================*/
+#### ====================*/
+
+<b>shell.c</b> <br>
+Contains the helper shell functions that main.c relies on to get the job done!
 #### /*======== char * * parse_args() ==========
 <b>Inputs:</b>
   - char * line
@@ -41,9 +44,9 @@ Handles all line parsing, redirection, chaining, forking, executing - you name i
   - Parses line by delimiter d and separates it into multiple strings stored in an array that is returned
   - Checks for and removes any extraneous spaces in line, if " " was the delimeter.
 
-####	====================*/
+#### ====================*/
 
-####	/*======== void redirect_out() ==========
+#### /*======== void redirect_out() ==========
 <b>Inputs: </b>
   - char * * arr
   - int initial
@@ -53,11 +56,11 @@ Handles all line parsing, redirection, chaining, forking, executing - you name i
 
   - Function for handling ">" redirect and chaining redirects
 
-####	====================*/
+#### ====================*/
 
-####	/*======== void errcheck() ==========
+#### /*======== void errcheck() ==========
   <b>Inputs:</b> None <br>
 	<b>Returns:</b> None
 - Prints an errno message when called and resets errno.
 
-####	====================*/
+#### ====================*/
